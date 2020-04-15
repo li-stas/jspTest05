@@ -1,6 +1,6 @@
 package app.dao;
 
-import app.entities.Student;
+import app.entities.User;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -12,24 +12,24 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-public class OracleDAOConnection implements DAOConnection {
+public class OracleDAOConnectionUser implements DAOConnectionUser {
 
-    private static OracleDAOConnection oracleDAOConnection;
+    private static OracleDAOConnectionUser oracleDAOConnection;
 
     private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
 
 
-    private OracleDAOConnection() {
+    private OracleDAOConnectionUser() {
         super();
     }
 
-    public static OracleDAOConnection getInstance() {
+    public static OracleDAOConnectionUser getInstance() {
         if (oracleDAOConnection != null) {
             return oracleDAOConnection;
         } else {
-            oracleDAOConnection = new OracleDAOConnection();
+            oracleDAOConnection = new OracleDAOConnectionUser();
             return oracleDAOConnection;
         }
     }
@@ -130,36 +130,36 @@ public class OracleDAOConnection implements DAOConnection {
 
     //---------READ-------------
     @Override
-    public List<Student> selectAllStudents() {
+    public List<User> selectAllUsers() {
         connect();
-        List<Student> studentList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM STUDENTS ORDER BY NAME ASC");
+            resultSet = statement.executeQuery("SELECT * FROM USERS ORDER BY NAME ASC");
             while (resultSet.next()) {
-                studentList.add(parseStudent(resultSet));
+                userList.add(parseUder(resultSet));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         disconnect();
-        System.out.println("studentList->" + studentList);
-        return studentList;
+        System.out.println("studentList->" + userList);
+        return userList;
     }
 
-    public List<Student> selectStartsWith(String name) {
+    public List<User> selectStartsWith(String name) {
         connect();
-        List<Student> studentList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
         try {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(
-                    "SELECT * FROM STUDENTS WHERE Name LIKE '"
+                    "SELECT * FROM USERS WHERE Name LIKE '"
                             + name + "%"
                             + "' ORDER BY NAME ASC");
 
             if (resultSet.next()) {
                 do {
-                    studentList.add(parseStudent(resultSet));
+                    userList.add(parseUder(resultSet));
                 } while (resultSet.next());
             }
 
@@ -167,20 +167,21 @@ public class OracleDAOConnection implements DAOConnection {
             e.printStackTrace();
         }
         disconnect();
-        System.out.println("studentList->" + studentList);
-        return studentList;
+        System.out.println("studentList->" + userList);
+        return userList;
     }
 
 
     //---------Create-------------
     @Override
-    public void createStudent(String name, float scholarShip) {
+    public void createUser(String name, String pwd, Float salary) {
         connect();
         try {
-            statement = connection.prepareStatement("INSERT INTO STUDENTS (NAME, SCHOLARSHIP)" +
-                    "VALUES (?, ?)");
+            statement = connection.prepareStatement("INSERT INTO USERS (NAME, PASSWORD, Salary)" +
+                    "VALUES (?, ?, ?)");
             ((PreparedStatement) statement).setString(1, name);
-            ((PreparedStatement) statement).setFloat(2, scholarShip);
+            ((PreparedStatement) statement).setString(2, pwd);
+            ((PreparedStatement) statement).setFloat(3, salary);
             ((PreparedStatement) statement).execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -190,10 +191,10 @@ public class OracleDAOConnection implements DAOConnection {
 
     //---------Update-------------
     @Override
-    public void updateStudent(int id, float sum) {
+    public void updateUser(int id, float sum) {
         connect();
         try {
-            statement = connection.prepareStatement("UPDATE STUDENTS SET STUDENTS.SCHOLARSHIP = ? WHERE STUDENTS.ID = ?");
+            statement = connection.prepareStatement("UPDATE USERS SET USERS.SALARY = ? WHERE STUDENTS.ID = ?");
             ((PreparedStatement) statement).setFloat(1, sum);
             ((PreparedStatement) statement).setInt(2, id);
             ((PreparedStatement) statement).execute();
@@ -205,10 +206,10 @@ public class OracleDAOConnection implements DAOConnection {
 
     //---------Delete-------------
     @Override
-    public void deleteStudent(int id) {
+    public void deleteUser(int id) {
         connect();
         try {
-            statement = connection.prepareStatement("DELETE FROM STUDENTS WHERE STUDENTS.ID = ?");
+            statement = connection.prepareStatement("DELETE FROM USERS WHERE STUDENTS.ID = ?");
             ((PreparedStatement) statement).setInt(1, id);
             ((PreparedStatement) statement).execute();
         } catch (SQLException e) {
@@ -218,19 +219,18 @@ public class OracleDAOConnection implements DAOConnection {
     }
 
 
-    private Student parseStudent(ResultSet resultSet) {
-        Student student = null;
+    private User parseUder(ResultSet resultSet) {
+        User user = null;
         try {
             int id = resultSet.getInt("ID");
             String name = resultSet.getString("NAME");
-            String email = resultSet.getString("EMAIL");
-            String group = resultSet.getString("GROUPNO");
-            float scholarship = resultSet.getFloat("SCHOLARSHIP");
-            student = new Student(id, name, email, group, scholarship);
+            String pwd = resultSet.getString("PASSWORD");
+            float salary = resultSet.getFloat("SALARY");
+            user = new User(id, name, pwd, salary);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return student;
+        return user;
     }
 
 }

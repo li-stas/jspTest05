@@ -1,15 +1,24 @@
 package app.entities;
 
 public class User {
+    private Integer id;
     private String name;
     private String password;
+    private Float salary;
 
     public User() {
+    }
+
+    public User(Integer id, String name, String password, Float salary) {
+        this.name = name;
+        this.password = password;
+        this.salary = salary;
     }
 
     public User(String name, String password) {
         this.name = name;
         this.password = password;
+        this.salary = 0F;
     }
 
     public String getName() {
