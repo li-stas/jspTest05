@@ -32,8 +32,8 @@ public class AddServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String name = req.getParameter("name");
-        String password = req.getParameter("pass");
-        User user = new User(name, password);
+        Integer max_total_points = Integer.valueOf(req.getParameter("max_total_points"));
+        User user = new User(name, max_total_points);
         ModelDb model = ModelDb.getInstance();
         model.add(user);
 

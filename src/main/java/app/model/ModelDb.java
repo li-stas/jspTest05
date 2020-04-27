@@ -1,7 +1,7 @@
 package app.model;
 
-import app.dao.DAOConnectionUser;
-import app.dao.OracleDAOConnectionUser;
+import app.dao.DAOConnection;
+import app.dao.OracleDAOConnection;
 import app.entities.User;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ModelDb {
     private static ModelDb instance = new ModelDb();
-    private static DAOConnectionUser daoConnection = OracleDAOConnectionUser.getInstance();
+    private static DAOConnection daoConnection = OracleDAOConnection.getInstance();
     private List<User> model;
 
     public static ModelDb getInstance() {
@@ -21,7 +21,7 @@ public class ModelDb {
     }
 
     public void add(User user) {
-        daoConnection.createUser(user.getName(), user.getPassword(),  100f);
+        daoConnection.createUser(user.getName(), user.getMax_total_points());
     }
 
     public List<String> list() {

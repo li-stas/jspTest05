@@ -3,22 +3,25 @@ package app.entities;
 public class User {
     private Integer id;
     private String name;
-    private String password;
-    private Float salary;
+    private int max_total_points;
 
     public User() {
+
     }
 
-    public User(Integer id, String name, String password, Float salary) {
+    public User(Integer id, String name, int max_total_points) {
+        this.id = id;
         this.name = name;
-        this.password = password;
-        this.salary = salary;
+        this.max_total_points = max_total_points;
     }
 
-    public User(String name, String password) {
+    public User(String name, int max_total_points) {
         this.name = name;
-        this.password = password;
-        this.salary = 0F;
+        this.max_total_points = max_total_points;
+    }
+
+    public User(String name) {
+        this.name = name;
     }
 
     public String getName() {
@@ -29,38 +32,20 @@ public class User {
         this.name = name;
     }
 
-    public String getPassword() {
-        return password;
+    public int getMax_total_points() {
+        return max_total_points;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setMax_total_points(int max_total_points) {
+        this.max_total_points = max_total_points;
     }
 
     @Override
     public String toString() {
         return "User{" +
-                "name='" + name + '\'' +
-                ", password='" + password + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", max_total_points=" + max_total_points +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        if (name != null ? !name.equals(user.name) : user.name != null) return false;
-        return password != null ? password.equals(user.password) : user.password == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        return result;
     }
 }

@@ -1,79 +1,41 @@
 package app.dao;
 
+import app.entities.Questions;
 import app.entities.User;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
-public class OracleDAOConnectionUser implements DAOConnectionUser {
+public class OracleDAOConnection implements DAOConnection {
 
-    private static OracleDAOConnectionUser oracleDAOConnection;
+    private static OracleDAOConnection oracleDAOConnection;
 
     private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
 
 
-    private OracleDAOConnectionUser() {
+    private OracleDAOConnection() {
         super();
     }
 
-    public static OracleDAOConnectionUser getInstance() {
+    public static OracleDAOConnection getInstance() {
         if (oracleDAOConnection != null) {
             return oracleDAOConnection;
         } else {
-            oracleDAOConnection = new OracleDAOConnectionUser();
+            oracleDAOConnection = new OracleDAOConnection();
             return oracleDAOConnection;
         }
     }
 
     @Override
     public void connect() {
-        //connectWebLogic();
         connectOracleDriver();
     }
 
-    /*
-     * https://docs.oracle.com/cd/A97329_03/web.902/a95879/ds.htm#1005742
-     * mvn com.oracle.maven:oracle-maven-sync:push -DoracleHome=c:\oracle\middleware\oracle_home\
-     * mvn install:install-file -DpomFile=oracle-maven-sync-12.2.1.pom -Dfile=oracle-maven-sync-12.2.1.jar
-     */
-    private void connectWebLogic() {
 
-        Context ic = null;
-        try {
-            String sp = "weblogic.jndi.WLInitialContextFactory";
-            String file = "t3://localhost:7001";
-            String dataSourceName = "JNDINamedbStudentWL";
-
-            Hashtable env = new Hashtable();
-            env.put(Context.INITIAL_CONTEXT_FACTORY, sp);
-            env.put(Context.PROVIDER_URL, file);
-            ic = new InitialContext(env);
-
-            DataSource ds = (DataSource) ic.lookup(dataSourceName);
-
-            connection = ds.getConnection();
-
-            DatabaseMetaData dma = connection.getMetaData();
-            // Печать сообщения об успешном соединении
-            System.out.println("\nWebLogic");
-            System.out.println("Connected to " + dma.getURL());
-            System.out.println("Driver " + dma.getDriverName());
-            System.out.println("Version " + dma.getDriverVersion());
-
-        } catch (SQLException | NamingException e) {
-            System.out.println("\n" + e.getMessage());
-            //e.printStackTrace();
-        }
-    }
 
     public void connectOracleDriver() {
         String connectionUrl = "";
@@ -126,6 +88,24 @@ public class OracleDAOConnectionUser implements DAOConnectionUser {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public List<Questions> selectAllQuestion() {
+        connect();
+        List<Questions> questionsList = new ArrayList<>();
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM a2_QUESTIONS");
+            while (resultSet.next()) {
+                questionsList.add(parseQuestions(resultSet));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        disconnect();
+        System.out.println("List<Questions>->" + questionsList);
+        return questionsList;
     }
 
     //---------READ-------------
@@ -218,19 +198,39 @@ public class OracleDAOConnectionUser implements DAOConnectionUser {
         disconnect();
     }
 
+    @Override
+    public void createUser(String name, int max_total_points) {
+
+    }
+
 
     private User parseUder(ResultSet resultSet) {
         User user = null;
         try {
             int id = resultSet.getInt("ID");
             String name = resultSet.getString("NAME");
-            String pwd = resultSet.getString("PASSWORD");
-            float salary = resultSet.getFloat("SALARY");
-            user = new User(id, name, pwd, salary);
+            int max_total_points = resultSet.getInt("MAX_TOTAL_POINTS");
+            user = new User(id, name, max_total_points);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return user;
     }
+    private Questions parseQuestions(ResultSet resultSet) {
+        Questions qt = null;
+        try {
+            int id = resultSet.getInt("ID");
+            String questions = resultSet.getString("QUESTION");
+            String answer = resultSet.getString("ANSWER");
+            int points = resultSet.getInt("POINTS");
+            qt = new Questions(id, questions, answer, points);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return qt;
+    }
+
+
+
 
 }
